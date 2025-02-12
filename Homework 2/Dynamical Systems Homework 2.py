@@ -8,7 +8,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
-from scipy.integrate import odeint
+from scipy.integrate import odeint, cumulative_trapezoid
 
 plt.style.use('../maroon_py.mplstyle')
 
@@ -241,4 +241,36 @@ for th, w in [(0, 5)]:
     ax.set_ylabel(f'${theta_label}$ $(rad)$')
     ax2.set_ylabel(f'${omega_label}$ $(rad/s)$')
 
+th0, th2, th3, th6, th7 = sol[:, 0], sol[:, 1], sol[:, 2], sol[:, 3], sol[:, 4]
+w0, w2, w3, w6, w7 = sol[:, 5], sol[:, 6], sol[:, 7], sol[:, 8], sol[:, 9]
+
+KE = (
+        1/2*I0*w0**2 +
+        1/2*(I1 + I2)*w2**2 +
+        1/2*(I3 + I4/9 + I5/9)*w3**3 +  # this can be found with mass lumping
+        1/2*I6*w6**2 +
+        1/2*I7*w7**2
+)
+
+PE = (
+        1/2*k1*(th2 - th0)**2 +
+        1/2*k1*(th3 - th2)**2 +
+        1/2*k2*(th6 - th3/3)**2 +
+        1/2*k2*(th7 - th3/3)**2
+)
+
+E_stored = KE + PE
+Ma_array = np.array([Ma(w0_, t_) for w0_, t_ in zip(w0, t_array)])
+P_motor = Ma_array*w0
+E_input = cumulative_trapezoid(P_motor, t_array, initial=0)
+
+P_damp = B*(w6**2 + w7**2)
+E_output = cumulative_trapezoid(P_damp, t_array, initial=0)
+
+fig, ax = plt.subplots()
+ax.plot(t_array, E_stored, label=r'$E_{stored}(t)$')
+ax.plot(t_array, E_input - E_output, label=r'$E_{input}(t) - E_{output}(t)$', ls='--')
+ax.set_xlabel('$t$ $(s)$')
+ax.set_ylabel(r'$E$ $(lbf\cdot in)$')
+ax.legend()
 plt.show()
