@@ -247,7 +247,7 @@ w0, w2, w3, w6, w7 = sol[:, 5], sol[:, 6], sol[:, 7], sol[:, 8], sol[:, 9]
 KE = (
         1/2*I0*w0**2 +
         1/2*(I1 + I2)*w2**2 +
-        1/2*(I3 + I4/9 + I5/9)*w3**3 +  # this can be found with mass lumping
+        1/2*(I3 + I4/9 + I5/9)*w3**2 +  # this can be found with mass lumping
         1/2*I6*w6**2 +
         1/2*I7*w7**2
 )
